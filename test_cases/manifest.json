@@ -1,0 +1,138 @@
+{
+  "tests": [
+    {
+      "id": "int_add",
+      "description": "Element-wise integer addition of two 1024-element arrays",
+      "source": "vec_add_int.cu",
+      "args": ["1024"],
+      "expected_behavior": "c[i] = a[i] + b[i] for every i",
+      "verification": "reference",
+      "reference": "vec_add_int",
+      "output_type": "int"
+    },
+    {
+      "id": "int_mul",
+      "description": "Element-wise integer multiplication with mixed-sign operands",
+      "source": "vec_mul_int.cu",
+      "args": ["1024"],
+      "expected_behavior": "c[i] = a[i] * b[i] for every i; no overflow by construction",
+      "verification": "reference",
+      "reference": "vec_mul_int",
+      "output_type": "int"
+    },
+    {
+      "id": "int_divmod",
+      "description": "Integer division and remainder with negative operands",
+      "source": "int_divmod.cu",
+      "args": ["900"],
+      "expected_behavior": "C++ semantics: quotient truncates toward zero, remainder has the sign of the dividend",
+      "verification": "reference",
+      "reference": "int_divmod",
+      "output_type": "int"
+    },
+    {
+      "id": "float_arith",
+      "description": "Single-precision multiply, divide, add and subtract",
+      "source": "float_arith.cu",
+      "args": ["4096"],
+      "expected_behavior": "out[i] = x*y + x/y - 0.5*y, equal to the double-precision reference within float32 rounding error",
+      "verification": "reference",
+      "reference": "float_arith",
+      "output_type": "float",
+      "rel_tol": 1e-5,
+      "abs_tol": 1e-6
+    },
+    {
+      "id": "saxpy",
+      "description": "SAXPY: y = 2.5 * x + y on 4096 floats",
+      "source": "saxpy.cu",
+      "args": ["4096"],
+      "expected_behavior": "y[i] = 2.5 * x[i] + y[i]; inputs are chosen so results are exactly representable",
+      "verification": "reference",
+      "reference": "saxpy",
+      "output_type": "float"
+    },
+    {
+      "id": "loop_collatz",
+      "description": "Data-dependent while loop and if/else (Collatz step counts for 1..1000)",
+      "source": "collatz.cu",
+      "args": ["1000"],
+      "expected_behavior": "steps[i] = number of Collatz steps from i+1 down to 1",
+      "verification": "reference",
+      "reference": "collatz",
+      "output_type": "int"
+    },
+    {
+      "id": "boundary_guard",
+      "description": "Partial last block (n = 1000, 256 threads per block) with a guard region after the array",
+      "source": "boundary_guard.cu",
+      "args": ["1000", "32"],
+      "expected_behavior": "out[i] = 2*i + 1 for i < 1000; all 32 guard elements still hold -1",
+      "verification": "reference",
+      "reference": "boundary_guard",
+      "output_type": "int"
+    },
+    {
+      "id": "size_1",
+      "description": "Grid-stride kernel with a single element",
+      "source": "vec_size.cu",
+      "args": ["1"],
+      "expected_behavior": "c[0] = 3*a[0] - b[0]; the other 4095 threads do nothing",
+      "verification": "reference",
+      "reference": "vec_size",
+      "output_type": "int"
+    },
+    {
+      "id": "size_257",
+      "description": "Grid-stride kernel with 257 elements (one past a power of two)",
+      "source": "vec_size.cu",
+      "args": ["257"],
+      "expected_behavior": "c[i] = 3*a[i] - b[i] for all 257 elements",
+      "verification": "reference",
+      "reference": "vec_size",
+      "output_type": "int"
+    },
+    {
+      "id": "size_65537",
+      "description": "Grid-stride kernel with 65537 elements (more elements than threads)",
+      "source": "vec_size.cu",
+      "args": ["65537"],
+      "expected_behavior": "c[i] = 3*a[i] - b[i]; each thread processes up to 17 elements",
+      "verification": "reference",
+      "reference": "vec_size",
+      "output_type": "int"
+    },
+    {
+      "id": "reduce_int",
+      "description": "Shared-memory tree reduction + atomicAdd over 1,000,003 integers",
+      "source": "reduce_int.cu",
+      "args": ["1000003"],
+      "expected_behavior": "Exact integer sum of (i % 10); n is not a multiple of the block size",
+      "verification": "reference",
+      "reference": "reduce_int",
+      "output_type": "int"
+    },
+    {
+      "id": "reduce_float",
+      "description": "Shared-memory tree reduction + atomicAdd over 2^20 floats",
+      "source": "reduce_float.cu",
+      "args": ["1048576"],
+      "expected_behavior": "Sum of 1/(1 + i % 1000) within 2e-5 relative; summation order on the GPU is not fixed",
+      "verification": "reference",
+      "reference": "reduce_float",
+      "output_type": "float",
+      "rel_tol": 2e-5,
+      "abs_tol": 1e-6
+    },
+    {
+      "id": "squares_literal",
+      "description": "8 threads each write threadIdx.x squared",
+      "source": "squares.cu",
+      "args": [],
+      "expected_behavior": "Exactly 0 1 4 9 16 25 36 49",
+      "verification": "expected_output",
+      "expected_output": [0, 1, 4, 9, 16, 25, 36, 49],
+      "output_type": "int"
+    }
+  ]
+}

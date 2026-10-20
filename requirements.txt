@@ -1,0 +1,4 @@
+# Unit tests
+pytest>=7.0
+# Optional: charts in results/ (the framework runs without it)
+matplotlib>=3.5
